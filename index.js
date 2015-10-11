@@ -1,12 +1,21 @@
 var Discordbot = require('discord.io');
 var Config = require('./config.js');
+var LolApi = require('leagueapi');
+
+
+/**
+ * Initializing league API
+ */
+
+LolApi.init(Config.developerKey, 'euw');
+
+
+
 var bot = new Discordbot({
 	email: Config.email,
 	password: Config.password,
 	autorun: Config.autorun
 });
-var util = require('util');
-
 
 bot.on("err", function(error) {
 	console.log(error)
@@ -30,7 +39,7 @@ bot.on("message", function(user, userID, channelID, message, rawEvent) {
 		bot.sendMessages(channelID, ["Pong"]); //Sending a message with our helper function
 	} else if (message === "picture") {
 		bot.sendFiles(channelID, ["snow.png"]); //Sending a file with our helper function
-	}else if (message == "!out") {
+	}else if (message === "!out" && user === "Litium") {
     bot.deleteMessage({
       channel: channelID,
       messageID: rawEvent.d.id
@@ -39,7 +48,8 @@ bot.on("message", function(user, userID, channelID, message, rawEvent) {
 	}else if (message.indexOf(":'(") > -1) {
 	  bot.deleteMessage({
       channel: channelID,
-      messageID: rawEvent.d.id
+      messageID: rawEvent.d.id,
+      tts: true
     });
 
     bot.sendMessage({
@@ -48,6 +58,13 @@ bot.on("message", function(user, userID, channelID, message, rawEvent) {
     });
 
 		console.log("Message sent")
+	}else if (message === "!litium"){
+		LolApi.Summoner.getByName('Litium I', function(err, summoner) {
+    if(!err) {
+        console.log(summoner);
+    }
+})
+		
 	}
 });
 
