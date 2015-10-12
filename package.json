@@ -4,7 +4,7 @@
   "description": "Bot to manage a discord channel",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [
     "bot",
@@ -19,5 +19,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/youcef-M/discord-bot"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.3"
   }
 }
