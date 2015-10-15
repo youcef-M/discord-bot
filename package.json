@@ -14,13 +14,20 @@
   "license": "ISC",
   "dependencies": {
     "discord.io": "^1.3.0",
-    "leagueapi": "^0.4.10"
+    "leagueapi": "^0.4.10",
+    "promise": "^7.0.4",
+    "request": "^2.65.0",
+    "sinon-as-promised": "^4.0.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/youcef-M/discord-bot"
   },
   "devDependencies": {
-    "mocha": "^2.3.3"
+    "chai": "^3.3.0",
+    "chai-as-promised": "^5.1.0",
+    "mocha": "^2.3.3",
+    "sinon": "^1.17.1",
+    "sinon-chai": "^2.8.0"
   }
 }

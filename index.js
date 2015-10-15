@@ -3,6 +3,7 @@ var Config = require('./config.js');
 var LolApi = require('leagueapi');
 
 
+
 /**
  * Initializing league API
  */
@@ -46,25 +47,27 @@ bot.on("message", function(user, userID, channelID, message, rawEvent) {
     });
     bot.disconnect();
 	}else if (message.indexOf(":'(") > -1) {
-	  bot.deleteMessage({
-      channel: channelID,
-      messageID: rawEvent.d.id,
-      tts: true
-    });
+		bot.deleteMessage({
+			channel: channelID,
+			messageID: rawEvent.d.id
+    	});
 
-    bot.sendMessage({
-      to: channelID,
-      message: "You cannot do that! @" + user,
-    });
+	    bot.sendMessage({
+	      	to: channelID,
+	      	message: "You cannot do that! @" + user,
+			tts: true
+	    });
 
 		console.log("Message sent")
-	}else if (message === "!litium"){
-		LolApi.Summoner.getByName('Litium I', function(err, summoner) {
-    if(!err) {
-        console.log(summoner);
-    }
-})
-		
+	}else if (message === "!game"){
+		bot.deleteMessage({
+			channel: channelID,
+			messageID: rawEvent.d.id
+    	});
+	    bot.sendMessage({
+	      to: channelID,
+	      message: "http://www.lolnexus.com/EUW/search?name=litium+i&region=EUW",
+	    });
 	}
 });
 
