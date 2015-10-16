@@ -20,20 +20,20 @@ describe('Command Handling', function() {
 
     describe('Command',function() {
 
-    describe('Checking Object structure', function() {
+        describe('Checking Object structure', function() {
 
-        it('should have a string as trigger', function() {
-            expect(empty.trigger).to.be.a('string');
+            it('should have a string as trigger', function() {
+                expect(empty.trigger).to.be.a('string');
+            });
+    
+            it('should have an int as args', function() {
+                expect(typeof empty.args).to.be.equal(typeof 0);
+            });
+    
+            it('should have a function as command', function() {
+                expect(empty.action).to.be.a('function');
+            });
         });
-
-        it('should have an int as args', function() {
-            expect(typeof empty.args).to.be.equal(typeof 0);
-        });
-
-        it('should have a function as command', function() {
-            expect(empty.action).to.be.a('function');
-        });
-    });
 
     });
 
@@ -61,8 +61,30 @@ describe('Command Handling', function() {
 
             it('should throw and error if anything else is passed', function() {
                 var spy = sinon.spy();
-                CommandList.add(42, spy);
-                expect(spy).to.have.been.calledWith(new Error('Invalid argument type, expect Number to be either a Command or an array of Command'));
+                CommandList.add('true', spy);
+                expect(spy).to.have.been.calledWith('Invalid argument type, expect String to be either a Command or an array of Command');
+                
+            });
+            
+            it('should add a Command to the list', function() {
+                CommandList.list = [];
+                var item = new Command('add: Command', 0, function() { 
+                    return 'Testing the add method with 1 Command';
+                });
+                CommandList.add(item);
+                expect(CommandList.list).to.deep.include.members([item]);
+            });
+            
+            it('should add an array of Command to the list', function() {
+                CommandList.list = [];
+                var item1 = new Command('item2', 0, function() { 
+                    return 'item 1';
+                });
+                var item2 = new Command('item2', 0, function() { 
+                    return 'item 2';
+                });
+                CommandList.add([item1,item2]);
+                expect(CommandList.list).to.deep.include.members([item1,item2]);
             });
 
         });
@@ -115,18 +137,27 @@ describe('Command Handling', function() {
 
         describe('#addCommand', function() {
 
-          it('should be a function', function() {
-            expect(CommandList.addCommand).to.be.a('function');
-          });
-
-          it('should call isNotDuplicate', function() {
-            sinon.spy(CommandList, 'isNotDuplicate');
-            CommandList.addCommand(empty);
-            expect(CommandList.isNotDuplicate.withArgs(empty).calledOnce).to.be.true;
-            CommandList.isNotDuplicate.restore();
-          });
-
-        })
+            it('should be a function', function() {
+                expect(CommandList.addCommand).to.be.a('function');
+            });
+            
+            it('should call isNotDuplicate', function() {
+                sinon.spy(CommandList, 'isNotDuplicate');
+                CommandList.addCommand(empty);
+                expect(CommandList.isNotDuplicate.withArgs(empty).calledOnce).to.be.true;
+                CommandList.isNotDuplicate.restore();
+            });
+    
+            it("should add item to the list", function() {
+                CommandList.list = [];
+                var item = new Command('addCommand', 0, function() { 
+                    return 'Testing addCommand';
+                });
+                CommandList.addCommand(item);
+                expect(CommandList.list).to.deep.include.members([item]);
+            });
+            
+        });
     });
 
 });
