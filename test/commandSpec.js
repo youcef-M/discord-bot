@@ -1,23 +1,36 @@
 var chai = require("chai");
-var chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
 var expect = chai.expect;
 
 var sinonChai = require("sinon-chai");
 chai.use(sinonChai);
 
 var sinon = require("sinon");
-require("sinon-as-promised");
-
-var Promise = require("promise");
 
 var Command = require("../lib/Command");
 var CommandList = require("../lib/CommandList");
+var CommandParser = require("../lib/CommandParser");
+
 
 var empty = new Command();
+var command_list = new CommandList();
+var command_parser = new CommandParser();
+
+var item1 = new Command('item1', 0, function() { 
+    return 'item 1';
+});
+var item2 = new Command('item2', 0, function() { 
+    return 'item 2';
+});
+var item3 = new Command();
 
 describe('Command Handling', function() {
 
+    beforeEach(function() {
+        if(command_list.list.length > 0) {
+            command_list.list = [];
+        }
+    });
+    
     describe('Command',function() {
 
         describe('Checking Object structure', function() {
@@ -42,49 +55,50 @@ describe('Command Handling', function() {
         describe('#add', function() {
 
             it('should be a function', function() {
-                expect(CommandList.add).to.be.a('function');
+                expect(command_list.add).to.be.a('function');
             });
 
             it('should call isValidArray', function() {
-                sinon.spy(CommandList, 'isValidArray');
-                CommandList.add([], function() {});
-                expect(CommandList.isValidArray.withArgs([]).calledOnce).to.be.true;
-                CommandList.isValidArray.restore();
+                sinon.spy(command_list, 'isValidArray');
+                command_list.add([], function() {});
+                expect(command_list.isValidArray.withArgs([]).calledOnce).to.be.true;
+                command_list.isValidArray.restore();
             });
 
             it('should call isCommand', function() {
-                sinon.spy(CommandList, 'isCommand');
-                CommandList.add(empty, function() {});
-                expect(CommandList.isCommand.withArgs(empty).calledOnce).to.be.true;
-                CommandList.isCommand.restore();
+                sinon.spy(command_list, 'isCommand');
+                command_list.add(empty, function() {});
+                expect(command_list.isCommand.withArgs(empty).calledOnce).to.be.true;
+                command_list.isCommand.restore();
             });
 
             it('should throw and error if anything else is passed', function() {
                 var spy = sinon.spy();
-                CommandList.add('true', spy);
+                command_list.add('true', spy);
                 expect(spy).to.have.been.calledWith('Invalid argument type, expect String to be either a Command or an array of Command');
                 
             });
             
             it('should add a Command to the list', function() {
-                CommandList.list = [];
+                
                 var item = new Command('add: Command', 0, function() { 
                     return 'Testing the add method with 1 Command';
                 });
-                CommandList.add(item);
-                expect(CommandList.list).to.deep.include.members([item]);
+                command_list.add(item);
+                expect(command_list.list).to.deep.include.members([item]);
             });
             
             it('should add an array of Command to the list', function() {
-                CommandList.list = [];
-                var item1 = new Command('item2', 0, function() { 
+                
+                var item1 = new Command('item1', 0, function() { 
                     return 'item 1';
                 });
                 var item2 = new Command('item2', 0, function() { 
                     return 'item 2';
                 });
-                CommandList.add([item1,item2]);
-                expect(CommandList.list).to.deep.include.members([item1,item2]);
+                
+                command_list.add([item1,item2]);
+                expect(command_list.list).to.deep.include.members([item1,item2]);
             });
 
         });
@@ -92,70 +106,166 @@ describe('Command Handling', function() {
         describe('#isValidArray', function() {
 
             it('should be a function', function() {
-                expect(CommandList.isValidArray).to.be.a('function');
+                expect(command_list.isValidArray).to.be.a('function');
             });
 
             it('should succeed if a Command array is passed', function() {
-               expect(CommandList.isValidArray([empty, empty])).to.be.true;
+               expect(command_list.isValidArray([empty, empty])).to.be.true;
             });
 
             it('should fail if a casual array is passed', function() {
-                expect(CommandList.isValidArray(['string', 'c'])).to.be.false;
-                expect(CommandList.isValidArray([12, 42])).to.be.false;
-                expect(CommandList.isValidArray([12.42, 42.12])).to.be.false;
-                expect(CommandList.isValidArray([true, false])).to.be.false;
+                expect(command_list.isValidArray(['string', 'c'])).to.be.false;
+                expect(command_list.isValidArray([12, 42])).to.be.false;
+                expect(command_list.isValidArray([12.42, 42.12])).to.be.false;
+                expect(command_list.isValidArray([true, false])).to.be.false;
             });
-
 
             it('should fail for anything else', function() {
-                expect(CommandList.isValidArray(empty)).to.be.false;
-                expect(CommandList.isValidArray('string')).to.be.false;
-                expect(CommandList.isValidArray(42.12)).to.be.false;
-                expect(CommandList.isValidArray(42)).to.be.false;
-                expect(CommandList.isValidArray(true)).to.be.false;
+                expect(command_list.isValidArray(empty)).to.be.false;
+                expect(command_list.isValidArray('string')).to.be.false;
+                expect(command_list.isValidArray(42.12)).to.be.false;
+                expect(command_list.isValidArray(42)).to.be.false;
+                expect(command_list.isValidArray(true)).to.be.false;
             });
+            
         });
 
         describe('#isCommand', function() {
 
             it('should be a function', function() {
-                expect(CommandList.isCommand).to.be.a('function');
+                expect(command_list.isCommand).to.be.a('function');
             });
 
             it('should succeed if a Command is passed', function() {
-               expect(CommandList.isCommand(empty)).to.be.true;
+               expect(command_list.isCommand(empty)).to.be.true;
             });
 
             it('should fail if anything else is passed', function() {
-                expect(CommandList.isCommand([])).to.be.false;
-                expect(CommandList.isCommand('string')).to.be.false;
-                expect(CommandList.isCommand(42.12)).to.be.false;
-                expect(CommandList.isCommand(42)).to.be.false;
-                expect(CommandList.isCommand(true)).to.be.false;
+                expect(command_list.isCommand([])).to.be.false;
+                expect(command_list.isCommand('string')).to.be.false;
+                expect(command_list.isCommand(42.12)).to.be.false;
+                expect(command_list.isCommand(42)).to.be.false;
+                expect(command_list.isCommand(true)).to.be.false;
             })
+            
         });
 
         describe('#addCommand', function() {
 
             it('should be a function', function() {
-                expect(CommandList.addCommand).to.be.a('function');
+                expect(command_list.addCommand).to.be.a('function');
             });
             
             it('should call isNotDuplicate', function() {
-                sinon.spy(CommandList, 'isNotDuplicate');
-                CommandList.addCommand(empty);
-                expect(CommandList.isNotDuplicate.withArgs(empty).calledOnce).to.be.true;
-                CommandList.isNotDuplicate.restore();
+                sinon.spy(command_list, 'isNotDuplicate');
+                command_list.addCommand(empty);
+                expect(command_list.isNotDuplicate.withArgs(empty).calledOnce).to.be.true;
+                command_list.isNotDuplicate.restore();
             });
     
             it("should add item to the list", function() {
-                CommandList.list = [];
+                
                 var item = new Command('addCommand', 0, function() { 
                     return 'Testing addCommand';
                 });
-                CommandList.addCommand(item);
-                expect(CommandList.list).to.deep.include.members([item]);
+                command_list.addCommand(item);
+                expect(command_list.list).to.deep.include.members([item]);
             });
+            
+        });
+        
+        describe('#execute', function() {
+            
+            it('should be a function', function(){
+                expect(command_list.execute).to.be.a('function');
+            });
+            
+            it('should call the right function', function() {
+                command_list.clear();
+                command_list.add([item1, item2, item3]);
+                expect(command_list.execute(1)).to.be.equal('item 2');
+            });
+            
+        });
+        
+    });
+
+    describe('CommandParser', function() {
+        
+        var list = new CommandList();
+        
+        list.add([item1,item2,item3]);
+        
+        describe('#init', function() {
+            
+            beforeEach(function() {
+                command_parser.reset();
+            });
+            
+            it('should fail if first arg is not a CommandList', function() {
+                var spy = sinon.spy();
+                command_parser.init('test',spy);
+                expect(spy).to.have.been.calledWith('Invalid argument type, expect String to be a CommandList');
+            });
+            
+            it('should call updateList', function() {
+                sinon.spy(command_parser, 'updateList');
+                command_parser.init(list, function(error) {
+                    console.log(error);
+                });
+                expect(command_parser.updateList.withArgs(list).calledOnce).to.be.true;
+                command_parser.updateList.restore();
+            });
+            
+            it('should update the trigger list', function() {
+                command_parser.init(list, function(error) {
+                    console.log(error);
+                });
+                expect(command_parser.trigger_list).to.deep.include.members(['item1', 'item2', '']);
+            });
+            
+        });
+        
+        describe('#parse', function() {
+            
+            it('should be a function', function() {
+                expect(command_parser.parse).to.be.a('function');
+            });
+            
+            it('should call trigger', function() {
+                var spy = sinon.spy(command_parser, 'trigger');
+                command_parser.parse('!test command');
+                expect(command_parser.trigger.withArgs('!test').calledOnce).to.be.true;
+                command_parser.trigger.restore();
+            });
+            
+        });
+        
+        describe('#trigger', function() {
+           
+            it('should return false if command is not in trigger_list', function() {
+                expect(command_parser.trigger('!test')).to.be.false;
+            });
+            
+            it('should return the trigger index if it is found', function() {
+                expect(command_parser.trigger('item2')).to.be.equal(1);
+            });
+            
+        });
+        
+        describe('#parseArgs', function() {
+           
+           it('should be a function', function() {
+               expect(command_parser.parseArgs).to.be.a('function');
+           });
+           
+           it('should parse a command with no long parameter', function() {
+               expect(command_parser.parseArgs('String with no long parameter')).to.be.eql(['String', 'with', 'no', 'long', 'parameter']);
+           });
+           
+           it('should parse a command with a long parameter', function() {
+               expect(command_parser.parseArgs('String with <a long parameter>', true)).to.be.eql(['String', 'with', 'a long parameter']);
+           });
             
         });
     });

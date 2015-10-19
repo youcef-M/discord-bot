@@ -7,8 +7,22 @@ var LolApi = require('leagueapi');
 /**
  * Initializing league API
  */
-
 LolApi.init(Config.developerKey, 'euw');
+
+
+
+/**
+ * 
+ */
+ 
+
+var Command = require("./lib/Command");
+var CommandList = require("./lib/CommandList");
+var CommandParser = require("./lib/CommandParser");
+
+
+var list = new CommandList();
+var parser = new CommandParser();
 
 
 
@@ -33,9 +47,43 @@ bot.on("message", function(user, userID, channelID, message, rawEvent) {
 	console.log("in " + channelID);
 	console.log(message);
 	console.log("----------");
-	console.log("--      --");
-	console.log("----------");
+	
+	var lol = new Command('!lol', 1, function(name) {
+    	LolApi.Summoner.getByName(name, function(err, summoner) {
+		    if(!err) {
+		    	summoner = summoner[Object.keys(summoner)[0]];
+		        bot.sendMessage({
+					to: channelID,
+					message: 'name: ' + summoner.name + '\n' + 'level: ' + summoner.summonerLevel,
+				});
+		    }
+		});
+	});
+	
+	var out = new Command('!out', 0, function() {
+	    if( user === "Litium" ) {
+	    	bot.deleteMessage({
+				channel: channelID,
+				messageID: rawEvent.d.id
+			});
+			bot.disconnect()
+	    }
+	    ;
+	});
+	
+	list.add([lol, out]);
 
+	parser.init(list);
+	
+	var r = parser.parse(message);
+	if (r) {
+		list.execute(r[0], parser.parseArgs(r[1],true)[0]);
+	}
+	
+	
+	
+	
+/*	
 	if (message === "ping") {
 		bot.sendMessages(channelID, ["Pong"]); //Sending a message with our helper function
 	} else if (message === "picture") {
@@ -59,16 +107,8 @@ bot.on("message", function(user, userID, channelID, message, rawEvent) {
 	    });
 
 		console.log("Message sent")
-	}else if (message === "!game"){
-		bot.deleteMessage({
-			channel: channelID,
-			messageID: rawEvent.d.id
-    	});
-	    bot.sendMessage({
-	      to: channelID,
-	      message: "http://www.lolnexus.com/EUW/search?name=litium+i&region=EUW",
-	    });
 	}
+*/
 });
 
 bot.on("disconnected", function() {

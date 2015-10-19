@@ -4,7 +4,7 @@
   "description": "Bot to manage a discord channel",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -g 'Command Handling' -R nyan"
+    "test": "mocha -R nyan"
   },
   "keywords": [
     "bot",
