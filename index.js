@@ -3,6 +3,7 @@ var CommandList = require("./lib/CommandList");
 var CommandParser = require("./lib/CommandParser");
 var Helper = require('./lib/Helper');
 
+var lolCommands = require('./lib/commands/lol/Summoner.js').commandArray();
 
 var list = new CommandList();
 var parser = new CommandParser();
@@ -19,17 +20,18 @@ var b = new Command('!b', 0, function(user) {
   console.log('user is:' + user);
 });
 
-list.add([a,b]);
+list.add(lolCommands);
 parser.updateList(list);
 
 Helper.log('Waiting for user input');
-var command = '!a <Youcef Medjellakh>';
+var command = '!elo 21710247 5';
 
 var parsed = parser.parse(command, list);
 var trigger = parser.trigger(parsed[0]);
 
+var args = parser.parseArgs(parsed[1], true)
 if(trigger !== false) {
   Helper.log('Command triggers, attempting to execute it...');
-  list.execute(trigger, parsed[1]);
+  list.execute(trigger, args);
   Helper.log('Execution successfull');
 }
